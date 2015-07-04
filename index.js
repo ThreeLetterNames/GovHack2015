@@ -15,6 +15,7 @@ var LocationData = function(t,d,la,lo,s) {
   this.details = d;
   this.img = "";
   this.src = s;
+  this.links = new Array();
   this.latlon = new LatLon(la, lo);
 };
 
@@ -70,7 +71,9 @@ window.onload = function() {
 
 
   function parse_photo_stories(data){
-//Title	URL	Date	Primary image	Primary image caption	Primary image rights information	Subjects	Station	State	Place	Keywords	Latitude	Longitude	MediaRSS URL
+//Title	URL	Date	Primary image	Primary image caption	
+//Primary image rights information	Subjects	Station	State	Place	
+//Keywords	Latitude	Longitude	MediaRSS URL   -14 fields
     var lines = data.split("\n");
     console.log("photo_stories: ..."+data.substr(10,50)+"... ("+lines.length+" lines)");
     for(var line = 0; line < lines.length; line++) {
@@ -88,6 +91,9 @@ window.onload = function() {
             || d.toLowerCase().contains("australian")) { 
           allData[dataCount] = new LocationData(t,d,la,lo,"ABC");
           allData[dataCount].img = fields[3];
+          allData[dataCount].links.push(fields[1]);
+          allData[dataCount].links.push(fields[3]);
+          allData[dataCount].links.push(fields[13]);
           dataCount++;
         }
       }
@@ -95,13 +101,26 @@ window.onload = function() {
   }
 
   function parse_heritage(data){
-//MCCID_INT	Feature_name	Feature_long_description	Feature_short_description	Location_description	Suburb	Feature_type	Event_Activity	Date_from	Date_to	Purpose	Epoch	Language_group	Clan (people)	Nation (group common name)	Source	Source_type	URL	Source_person	Aboriginal_individual	Aboriginal_individual_Gender	Non_Aboriginal_indiv	Non_Aboriginal_indiv_Gender	Non_Aboriginal_organisation    Past and present 	Non_Aboriginal_role	Melway	Aboriginal_words	Aboriginal_words_meaning	European_site_names	Physical_evidence	Address   -> adding lat long the hard way
+//MCCID_INT	Feature_name	Feature_long_description	Feature_short_description	Location_description	4
+//Suburb	Feature_type	Event_Activity	Date_from	Date_to	9
+//Purpose	Epoch	Language_group	Clan (people)	Nation (group common name)	14
+//Source	Source_type	URL	Source_person	Aboriginal_individual	19
+//Aboriginal_individual_Gender	Non_Aboriginal_indiv	Non_Aboriginal_indiv_Gender	Non_Aboriginal_organisation    Past and present 	Non_Aboriginal_role 24
+//	Melway	Aboriginal_words	Aboriginal_words_meaning	European_site_names	Physical_evidence	29
+//Address   -> lat  -> long - (33 fields)
     var lines = data.split("\n");
     console.log("heritage: ..."+data.substr(10,50)+"... ("+lines.length+"lines)");
     for(var line = 0; line < lines.length; line++) {
       var fields = lines[line].split(",");
-      if(false) {
-      //comoplex address data.
+      if(line !== 0 && fields[32] !== "" && fields[33] !== "") {
+        console.log("HER");
+        var t = fields[1];
+        var d = fields[2]+" ("+fields[5]+", "+fields[4]+": "+fields[6]+" - "+fields[7]+" - "+fields[17]+" - "+fields[18]+" - "+fields[19]+" - "+fields[26]+" - "+fields[27]+")" ;
+        var la = fields[31];
+        var lo = fields[32];
+        allData[dataCount] = new LocationData(t,d,la,lo,"HER");
+        allData[dataCount].links.push(fields[17]);
+        dataCount++;
       }
     }
   }
@@ -138,6 +157,7 @@ window.onload = function() {
         var t = fields[0];
         var d = fields[4]+" - "+fields[1]+", "+fields[2];
         allData[dataCount] = new LocationData(t,d,0,0,"ORG");
+        allData[dataCount].links.push(fields[3]);
         dataCount++;
       }
     }
@@ -147,10 +167,10 @@ window.onload = function() {
     console.log("DATA: ..."+data.substr(10,50)+"...");
   }
 
-//  load("dat/photo_stories.csv");
   load("dat/indigenous_heritage_working.csv");
-//  load("dat/memorials_and_sculptures.csv");
-//  load("dat/indiginous_organizations.csv");
+  load("dat/memorials_and_sculptures.csv");
+  load("dat/indiginous_organizations.csv");
+  load("dat/photo_stories.csv");
 
 //  load("dat/atsic_regions.mid");
 //  load("dat/atsic_regions.mif");
@@ -224,25 +244,14 @@ window.onload = function() {
       ////////////////////////////////////////////////////////////////////
       // Display list ////////////////////////////////////////////////////
       var output_div = document.getElementById("output");
-      console.log(output_div);
-      output_div.innerHTML += "<h4>Region:</h4>";
-      output_div.innerHTML += "<h5>Regional InformationStats</h5>";
-      output_div.innerHTML += "<h4>Places of Interest:</h4>";
-      output_div.innerHTML += "<h5> - location 1</h5>";
-      output_div.innerHTML += "<h5> - location 2</h5>";
+      var image_div = document.getElementById("images");
       
       for(var i = 0; i < allData.length && i < 100; i++) {
-//        if(allData[i].img === "") {
-//          output_div.innerHTML += "<h5>"+allData[i].title+"["+allData[i].latlon.show()+"]</h5>";
-//        } else {
-//          output_div.innerHTML += "<h5>"+allData[i].title+" ## "+allData[i].details+"["+allData[i].latlon.show()+"]</h5><img src="+allData[i].img+"></img>";
-//        }
-        
         
         switch(allData[i].src) {
           case "ABC":
             console.log("ABC");
-            output_div.innerHTML += "<div class=\"abc\"><h5>"+allData[i].title+" ## "
+            image_div.innerHTML += "<div class=\"abc\"><h5>"+allData[i].title+" ## "
                                  +allData[i].details+"["+allData[i].latlon.show()
                                  +"]</h5><img src="+allData[i].img+"></img></div>";
             break;
@@ -254,6 +263,11 @@ window.onload = function() {
           case "ORG":
             console.log("ORG");
             output_div.innerHTML += "<div class=\"org\"><h5>"+allData[i].title+"["
+                                 +allData[i].latlon.show()+"]</h5></div>";
+            break;
+          case "HER":
+            console.log("HER-new");
+            output_div.innerHTML += "<div class=\"her\"><h5>"+allData[i].title+"["
                                  +allData[i].latlon.show()+"]</h5></div>";
             break;
           default:
