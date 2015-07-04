@@ -63,19 +63,15 @@ h5 {
 }
 
 .main {
-  width: "80%";
 }
 
 .icon-td {
-  width: "30%";
   align: center;
 }
 .icon-div {
-  width: "30%";
   align: center;
 }
 .img-tag {
-  width: "100%";
   align: middle;
 }
 .title-td {
@@ -94,20 +90,28 @@ h5 {
   horizontal-align: middle;
 }
 .content-row {
-  height: "100%";
 }
 .list-td {
   align: top;
   width: "30%";
-  height: "100%";
+  overflow : auto;
+}
+.output {
+  overflow-y: scroll;
+  overflow-x: scroll;
 }
 .content-div {
-  height: "100%";
+  overflow-y: scroll;
+  overflow-x: scroll;
 }
 .content-td {
-  width: "100%";
 }
-
+.images {
+  height: 100px;
+  width: 150px;
+  font-size: 12px;
+  overflow: auto
+}
 
 
 
