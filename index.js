@@ -16,9 +16,32 @@ var LocationData = function(t,d,la,lo,s) {
   this.img = "";
   this.src = s;
   this.links = new Array();
+  this.distance = 666666666666;
   this.latlon = new LatLon(la, lo);
 };
 
+
+var distance_calc = function(l1, l2) {
+  if(l1 !== undefined && l2 !== undefined) {
+    var lat1 = l1.lat;
+    var lat2 = l2.lat;
+    var lon1 = l1.lon;
+    var lon2 = l1.lon;
+    console.log("ll:"+l1+l2);
+    var R = 6371000; // metres
+    var radians1 = lat1 * Math.PI / 180;
+    var radians2 = lat2 * Math.PI / 180;
+    var delta = (lat2-lat1) * Math.PI / 180;
+    var inv_delta = (lon2-lon1) * Math.PI / 180;
+    var a = Math.sin(delta/2) * Math.sin(delta/2) +
+            Math.cos(radians1) * Math.cos(radians2) *
+            Math.sin(inv_delta/2) * Math.sin(inv_delta/2);
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+  } else {
+    return 666666666666;
+  }
+}
 
 
 var lonlat;
@@ -75,7 +98,7 @@ window.onload = function() {
 //Primary image rights information	Subjects	Station	State	Place	
 //Keywords	Latitude	Longitude	MediaRSS URL   -14 fields
     var lines = data.split("\n");
-    console.log("photo_stories: ..."+data.substr(10,50)+"... ("+lines.length+" lines)");
+//    console.log("photo_stories: ..."+data.substr(10,50)+"... ("+lines.length+" lines)");
     for(var line = 0; line < lines.length; line++) {
       var fields = lines[line].split(",");
       if(line !== 0 && fields[11] !== "" && fields[12] !== "") { //&& fields.length === 14 && fields[11] !== ""
@@ -109,12 +132,10 @@ window.onload = function() {
 //	Melway	Aboriginal_words	Aboriginal_words_meaning	European_site_names	Physical_evidence	29
 //Address   -> lat  -> long - (33 fields)
     var lines = data.split("\n");
-    console.log("heritage: ..."+data.substr(10,50)+"... ("+lines.length+"lines)");
+//    console.log("heritage: ..."+data.substr(10,50)+"... ("+lines.length+"lines)");
     for(var line = 0; line < lines.length; line++) {
       var fields = lines[line].split(",");
-      console.log("her fields: "+fields.length);
       if(line !== 0 && fields.length > 5) {
-        console.log("HER");
         var t = fields[1];
         var d = fields[2]+" ("+fields[5]+", "+fields[4]+": "+fields[6]+" - "+fields[7]+" - "+fields[17]+" - "+fields[18]+" - "+fields[19]+" - "+fields[26]+" - "+fields[27]+")" ;
         var la = fields[fields.length-1];
@@ -131,7 +152,7 @@ window.onload = function() {
   function parse_sculptures(data){
   //Description	Title	Co-ordinates
     var lines = data.split("\n");
-    console.log("sculptures: ..."+data.substr(10,50)+"... ("+lines.length+"lines)");
+//    console.log("sculptures: ..."+data.substr(10,50)+"... ("+lines.length+"lines)");
     for(var line = 0; line < lines.length; line++) {
       var fields = lines[line].split(",");
       if(fields[3] && ( fields[0].toLowerCase().contains("indigenous")
@@ -153,7 +174,7 @@ window.onload = function() {
   function parse_organizations(data){
 //Organisation	Street	Suburb/Town	Postcode	Website    -> lat -> lon 
     var lines = data.split("\n");
-    console.log("organizations: ..."+data.substr(10,50)+"... ("+lines.length+"lines)");
+//    console.log("organizations: ..."+data.substr(10,50)+"... ("+lines.length+"lines)");
     for(var line = 0; line < lines.length; line++) {
       var fields = lines[line].split(",");
       if(line > 0 && fields[4]) {
@@ -209,7 +230,8 @@ window.onload = function() {
 
   function geoCallback(position)
   {
-    lonlat = "["+position.coords.longitude+","+position.coords.latitude+"]";
+    //lonlat = "["+position.coords.longitude+","+position.coords.latitude+"]";
+    lonlat = new LatLon(position.coords.latitude, position.coords.longitude);
     console.log("GL: "+lonlat);
     //geolocation = lonlat;
     return;
@@ -218,11 +240,6 @@ window.onload = function() {
   getLocation();
 
 
-  ////////////////////////////////////////////////////////////////////////
-  // search data an sort by distance (with areas priooritized first) /////
-  
-  ////////////////////////////////////////////////////////////////////////
-  // combine data into picture / text streams ////////////////////////////
 
 
 //get date and display weather info too:
@@ -231,50 +248,56 @@ window.onload = function() {
 
   ////////////////////////////////////////////////////////////////////////
   // Block till everythings done... spinner? /////////////////////////////
-  //while (lonlat === undefined) {}
-//  while (lonlat === undefined)
-//    setTimeout(function () { alert('hello');  }, 3000 * 10);
-//  console.log("Crazy");
-
   var old_count = 0;
   var delay = function() {
     if(lonlat === undefined || allData.length !== old_count) {//we want it to match
         old_count = allData.length;
-        console.log("undef:"+allData.length); //not ready untill user interacts
+//        console.log("undef:"+allData.length); //not ready untill user interacts
         setTimeout(delay, 250);//wait 50 millisecnds then recheck
         return;
     } else {
       console.log("lonlat: "+lonlat); //not ready untill user interacts
+
+  ////////////////////////////////////////////////////////////////////////
+  // combine data into picture / text streams ////////////////////////////
+  ////////////////////////////////////////////////////////////////////////
+  // search data an sort by distance (with areas priooritized first) /////
+      for(var x = 0; x < allData.length; x++) {
+        allData[x].distance = distance_calc(lonlat, allData[x].latlon)
+      }
+      var localData = allData.sort(function(x,y){ return x.distance-y.distance;});
 
       ////////////////////////////////////////////////////////////////////
       // Display list ////////////////////////////////////////////////////
       var output_div = document.getElementById("output");
       var image_div = document.getElementById("images");
       
-      for(var i = 0; i < allData.length && i < 100; i++) {
-        
-        switch(allData[i].src) {
+      for(var i = 0; i < localData.length && i < 100; i++) {
+//        console.log("Dist:"+distance_calc(lonlat, localData[i].latlon));
+        switch(localData[i].src) {
           case "ABC":
-            console.log("ABC");
-            image_div.innerHTML += "<div class=\"abc\"><h5>"+allData[i].title+"</h5><p>"
-                                 +allData[i].details+"["+allData[i].latlon.show()
-                                 +"]</p><img src="+allData[i].img
+            image_div.innerHTML += "<div class=\"abc\"><h5>"+localData[i].title+"</h5><p>"
+                                 +localData[i].details+"["+localData[i].latlon.show()
+                                 +" ==> "+localData[i].distance+"]</p><img src="+localData[i].img
                                  +"></img><p class=attrib>Source: ABC Online Photo Stories</p></div>";
             break;
           case "MAS":
-            console.log("MAS");
-            output_div.innerHTML += "<div class=\"mas\"><h5>"+allData[i].title+"</h5><p>["
-                                 +allData[i].latlon.show()+"]</p><p class=attrib>Source: Melbourne Government Memorials</p></div>";
+            output_div.innerHTML += "<div class=\"mas\"><h5>"+localData[i].title+"</h5><p>["
+                                 +localData[i].latlon.show()
+                                 +" ==> "+localData[i].distance
+                                 +"]</p><p class=attrib>Source: Melbourne Government Memorials</p></div>";
             break;
           case "ORG":
-            console.log("ORG");
-            output_div.innerHTML += "<div class=\"org\"><h5>"+allData[i].title+"</h5><p>["
-                                 +allData[i].latlon.show()+"]</p><p class=attrib>Source: Melbourne Government Organisations</p></div>";
+            output_div.innerHTML += "<div class=\"org\"><h5>"+localData[i].title+"</h5><p>["
+                                 +localData[i].latlon.show()
+                                 +" ==> "+localData[i].distance
+                                 +"]</p><p class=attrib>Source: Melbourne Government Organisations</p></div>";
             break;
           case "HER":
-            console.log("HER-new");
-            output_div.innerHTML += "<div class=\"her\"><h5>"+allData[i].title+"</h5><p>["
-                                 +allData[i].latlon.show()+"]</p><p class=attrib>Source: Indigenous Heritage Database</p></div>";
+            output_div.innerHTML += "<div class=\"her\"><h5>"+localData[i].title+"</h5><p>["
+                                 +localData[i].latlon.show()
+                                 +" ==> "+localData[i].distance
+                                 +"]</p><p class=attrib>Source: Indigenous Heritage Database</p></div>";
             break;
           default:
             console.log("Unknown data source");
