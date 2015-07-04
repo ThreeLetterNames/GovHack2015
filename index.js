@@ -10,11 +10,52 @@ window.onload = function() {
     request = new XMLHttpRequest();
     request.open('GET', file, false);
     request.send();
-    parse(request.responseText);
+    console.log("Got: "+file);
+    switch(file) {
+      case "dat/photo_stories.csv":
+        parse_photo_stories(request.responseText);
+        console.log("dat/photo_stories.csv:");
+        break;
+      case "dat/indigenous_heritage.csv":
+        parse(request.responseText);
+        console.log("dat/indigenous_heritage.csv:");
+        break;
+      case "dat/memorials_and_sculptures.csv":
+        parse(request.responseText);
+        console.log("dat/memorials_and_sculptures.csv:");
+        break;
+      case "dat/indiginous_organizations.csv":
+        parse(request.responseText);
+        console.log("dat/indiginous_organizations.csv:");
+        break;
+      case "dat/atsic_regions.mid":
+        parse(request.responseText);
+        console.log("dat/atsic_regions.mid:");
+        break;
+      case "dat/atsic_regions.mif":
+        parse(request.responseText);
+        console.log("dat/atsic_regions.mif:");
+        break;
+      case "dat/atsic_wards.mid":
+        parse(request.responseText);
+        console.log("dat/atsic_wards.mid");
+        break;
+      case "dat/atsic_wards.mif":
+        parse(request.responseText);
+        console.log("dat/atsic_wards.mif:");
+        break;
+      default:
+        console.log("Unknown data... what happened?");
+    }
+  }
+
+
+  function parse_photo_stories(data){
+    console.log("parse_photo_stories: ..."+data.substr(10,50)+"..."); //50 chars
   }
 
   function parse(data){
-    console.log("DATA: "+data);
+    console.log("DATA: ..."+data.substr(10,50)+"..."); //50 chars
   }
 
   load("dat/photo_stories.csv");
@@ -29,7 +70,19 @@ window.onload = function() {
   load("dat/atsic_regions.mif");
   load("dat/atsic_wards.mid");
   load("dat/atsic_wards.mif");
-
+//Ok this ones a bit more complex...
+// .mid contains "names" (hopefully in order?!?)
+//    - one per line, pairs of strings
+//    - "<place>","<region-or-none>"
+// .mif ... regions seem mixed up... and there are hundreds
+//    - starts with a whole load of junk including "  Region Char(30)"
+//    - boundry definitions start with "Region  1"
+//    - end with the block:
+  //    Pen (1,2,65280) 
+  //    Brush (1,0,16777215)
+  //    Center 143.078165 -31.893465
+//    - some lines have only a single digit (esp after region)... bad data or hard lesson??
+//    - - Then each row is a lat long pair seperated by space
 
 
   ////////////////////////////////////////////////////////////////////////
@@ -46,13 +99,12 @@ window.onload = function() {
   function geoCallback(position)
   {
     var lonlat="["+position.coords.longitude+","+position.coords.latitude+"]";
-//      alert("GL."+lonlat);
+    console.log("GL: "+lonlat);
     geolocation = lonlat;
-    console.log(lonlat);
     return lonlat;
   }
 
-//  lonlat = getLocation();
+  lonlat = getLocation();
 //  console.log(lonlat); //not ready untill user interacts
 
 
