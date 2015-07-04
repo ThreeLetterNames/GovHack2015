@@ -38,7 +38,7 @@ window.onload = function() {
       case "dat/photo_stories.csv":
         parse_photo_stories(request.responseText);
         break;
-      case "dat/indigenous_heritage.csv":
+      case "dat/indigenous_heritage_working.csv":
         parse_heritage(request.responseText);
         break;
       case "dat/memorials_and_sculptures.csv":
@@ -148,7 +148,7 @@ window.onload = function() {
   }
 
 //  load("dat/photo_stories.csv");
-  load("dat/indigenous_heritage.csv");
+  load("dat/indigenous_heritage_working.csv");
 //  load("dat/memorials_and_sculptures.csv");
 //  load("dat/indiginous_organizations.csv");
 
