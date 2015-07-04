@@ -45,7 +45,7 @@ window.onload = function() {
       case "dat/memorials_and_sculptures.csv":
         parse_sculptures(request.responseText);
         break;
-      case "dat/indiginous_organizations.csv":
+      case "dat/indiginous_organizations_working.csv":
         parse_organizations(request.responseText);
         break;
       case "dat/atsic_regions.mid":
@@ -151,7 +151,7 @@ window.onload = function() {
   }
 
   function parse_organizations(data){
-//Organisation	Street	Suburb/Town	Postcode	Website    
+//Organisation	Street	Suburb/Town	Postcode	Website    -> lat -> lon 
     var lines = data.split("\n");
     console.log("organizations: ..."+data.substr(10,50)+"... ("+lines.length+"lines)");
     for(var line = 0; line < lines.length; line++) {
@@ -159,8 +159,10 @@ window.onload = function() {
       if(line > 0 && fields[4]) {
         var t = fields[0];
         var d = fields[4]+" - "+fields[1]+", "+fields[2];
-        allData[dataCount] = new LocationData(t,d,0,0,"ORG");
-        allData[dataCount].links.push(fields[3]);
+        var la = fields[fields.length-1];
+        var lo = fields[fields.length-2].substr(4,20);;
+        allData[dataCount] = new LocationData(t,d,la,lo,"ORG");
+        allData[dataCount].links.push(fields[fields.length-3]);
         dataCount++;
       }
     }
@@ -172,7 +174,7 @@ window.onload = function() {
 
   load("dat/indigenous_heritage_working.csv");
   load("dat/memorials_and_sculptures.csv");
-  load("dat/indiginous_organizations.csv");
+  load("dat/indiginous_organizations_working.csv");
   load("dat/photo_stories.csv");
 
 //  load("dat/atsic_regions.mid");
