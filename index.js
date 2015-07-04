@@ -8,6 +8,7 @@ window.onload = function() {
   function load(file) {
     var request;
     request = new XMLHttpRequest();
+//    request.onload = parse;
     request.open('GET', file, false);
     request.send();
     //console.log("Got: "+file);
@@ -62,6 +63,15 @@ window.onload = function() {
 
   function parse_sculptures(data){
     console.log("sculptures: ..."+data.substr(10,50)+"...");
+    var lines = data.split("\n");
+    console.log("lines:"+lines.length);
+    for(var line = 0; line < lines.length; line++) {
+      var fields = lines[line].split(",");
+      if(fields[3]) {
+        console.log("geo:"+fields[2].substr(2,fields[3].length));
+        console.log("geo:"+fields[3].substr(1,fields[3].length-3));
+      }
+    }
 //Description	Title	Co-ordinates
   }
 
