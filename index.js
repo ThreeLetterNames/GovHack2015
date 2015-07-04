@@ -104,8 +104,8 @@ window.onload = function() {
       if(line !== 0 && fields[11] !== "" && fields[12] !== "") { //&& fields.length === 14 && fields[11] !== ""
         var t = fields[0];
         var d = fields[4]+" ("+fields[9]+", "+fields[8]+": "+fields[10]+" - "+fields[6]+")" ;
-        var la = fields[fields.length-2];
-        var lo = fields[fields.length-3];
+        var la = fields[fields.length-3];
+        var lo = fields[fields.length-2];
         if(t.toLowerCase().contains("indigenous")
             || t.toLowerCase().contains("aboriginal")
             || t.toLowerCase().contains("australian")
@@ -138,8 +138,8 @@ window.onload = function() {
       if(line !== 0 && fields.length > 5) {
         var t = fields[1];
         var d = fields[2]+" ("+fields[5]+", "+fields[4]+": "+fields[6]+" - "+fields[7]+" - "+fields[17]+" - "+fields[18]+" - "+fields[19]+" - "+fields[26]+" - "+fields[27]+")" ;
-        var la = fields[fields.length-1];
-        var lo = fields[fields.length-2].substr(4,20);
+        var la = fields[fields.length-2].substr(4,20);
+        var lo = fields[fields.length-1];
         if(la !== "" && lo !== "") {
           allData[dataCount] = new LocationData(t,d,la,lo,"HER");
           allData[dataCount].links.push(fields[17]);
@@ -163,8 +163,8 @@ window.onload = function() {
                      || fields[1].toLowerCase().contains("australian"))) {
         var t = fields[1];
         var d = fields[0];
-        var la = fields[3].substr(1,fields[3].length-3);
-        var lo = fields[2].substr(2,fields[3].length);
+        var la = fields[2].substr(2,fields[3].length);
+        var lo = fields[3].substr(1,fields[3].length-3);
         allData[dataCount] = new LocationData(t,d,la,lo,"MAS");
         dataCount++;
       }
@@ -180,8 +180,8 @@ window.onload = function() {
       if(line > 0 && fields[4]) {
         var t = fields[0];
         var d = fields[4]+" - "+fields[1]+", "+fields[2];
-        var la = fields[fields.length-1];
-        var lo = fields[fields.length-2].substr(4,20);;
+        var la = fields[fields.length-2].substr(4,20);
+        var lo = fields[fields.length-1];
         allData[dataCount] = new LocationData(t,d,la,lo,"ORG");
         allData[dataCount].links.push(fields[fields.length-3]);
         dataCount++;
