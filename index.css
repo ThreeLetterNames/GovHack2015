@@ -47,8 +47,19 @@ h5 {
   text-align: center;
 }
 
+.bom {
+  background: hsl(129, 90%, 80%);
+  box-shadow: 4px 4px 5px hsl(100, 20%, 80%);
+  padding: 0.05px;
+  margin: 5px;
+  text-align: center
+}
+
 .attrib {
   text-align: right;
+}
+
+.link {
 }
 
 .main {
@@ -86,6 +97,7 @@ h5 {
   height: "100%";
 }
 .list-td {
+  align: top;
   width: "30%";
   height: "100%";
 }

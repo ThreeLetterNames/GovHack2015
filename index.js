@@ -61,6 +61,17 @@ var distance_calc = function(l1, l2) {
 //OCT 	Kambarang, (long dry periods)
 //NOV 	Parra'dowee, (warm and wet)
 
+var CreateWeather = function() {
+  var t = "Tome of Year: Makuru / Burrugin";
+  var d = "The weather at this time of the year is also known as Makuru, (coldest, wettest) in the Nyoongar calendar and as Burrugin, (cold, short days) in the D'harawal calendar.";
+  var la = 0;
+  var lo = 0;
+  var ld = new LocationData(t,d,la,lo,"BOM");
+  ld.img = "img/bom.jpg";
+  ld.links.push(new LinkData("http://www.bom.gov.au/iwk/climate_culture/prec-heritage.shtml","BOM"));
+  return ld;
+}
+
 
 var lonlat;
 var allData = new Array();
@@ -288,6 +299,7 @@ window.onload = function() {
         allData[x].distance = distance_calc(lonlat, allData[x].latlon)
       }
       var localData = allData.sort(function(x,y){ return x.distance-y.distance;});
+      allData.push(CreateWeather());
 
       ////////////////////////////////////////////////////////////////////
       // Display list ////////////////////////////////////////////////////
@@ -297,35 +309,41 @@ window.onload = function() {
       
       for(var i = 0; i < localData.length && i < 100; i++) {
 //        console.log("Dist:"+distance_calc(lonlat, localData[i].latlon));
+
+        var link_text = "";
+        for(var link_count = 0; link_count < localData[i].links.length; link_count++) {
+              link_text += "<p><a class='link' href='"+localData[i].links[link_count].link+"'>"
+                                    + localData[i].links[link_count].text + "</a></p>";
+        }
+
         switch(localData[i].src) {
           case "ABC":
-            image_div.innerHTML += "<div class='abc'><h5>"+localData[i].title+"</h5><p>"
-                                 +localData[i].details+"</p><p>Distance:"+localData[i].distance
-                                 +"</p><img src='" + localData[i].img + "'></img>";
-//            for(var link_count = 0; link_count < localData[i].links.length; link_count++) {
-//              image_div.innerHTML += "<p><a href='"+localData[i].links[link_count].link+"'>"
-//                                    + localData[i].links[link_count].text + "<\\a></p>";
-//            }
-            image_div.innerHTML += "<p class='attrib'>Source: ABC Online Photo Stories</p></div>";
+            image_div.innerHTML += "<div class='abc'><p>"+localData[i].title+"</p><p>"
+                                 +localData[i].details+"</p><img src='" + localData[i].img + "' width='30%'></img>"
+                                 +link_text+ "<p class='attrib'>Source: ABC Online Photo Stories</p></div>";
             break;
+            
           case "MAS":
             output_div.innerHTML += "<div class=\"mas\"><h5>"+localData[i].title+"</h5><p>["
-                                 +localData[i].latlon.show()
-                                 +" ==> "+localData[i].distance
-                                 +"]</p><p class=attrib>Source: Melbourne Government Memorials</p>";
+                                 +localData[i].details+"</p>"
+                                 +link_text+ "<p class=attrib>Source: Melbourne Government Memorials</p></div>";
             break;
+            
           case "ORG":
-            output_div.innerHTML += "<div class=\"org\"><h5>"+localData[i].title+"</h5><p>["
-                                 +localData[i].latlon.show()
-                                 +" ==> "+localData[i].distance
-                                 +"]</p><p class=attrib>Source: Melbourne Government Organisations</p>";
+            output_div.innerHTML += "<div class=\"org\"><h5>"+localData[i].title+"</h5><p>"
+                                 +localData[i].title +"</p><p>"+ localData[i].details
+                                 +"</p>"+link_text+"<p class=attrib>Source: Melbourne Government Organisations</p></div>";
             break;
+            
           case "HER":
-            output_div.innerHTML += "<div class=\"her\"><h5>"+localData[i].title+"</h5><p>["
-                                 +localData[i].latlon.show()
-                                 +" ==> "+localData[i].distance
-                                 +"]</p><p class=attrib>Source: Indigenous Heritage Database</p>";
+            output_div.innerHTML += "<div class=\"her\"><h5>"+localData[i].title+"</h5><p>"
+                                 +localData[i].title +"</p><p>"+ localData[i].details
+                                 +"</p>"+link_text+"<p class=attrib>Source: Indigenous Heritage Database</p></div>";
             break;
+            
+          case "BOM":
+            output_div.innerHTML += "<div class=\"bom\"><h5>"+localData[i].title+"</h5><p>["
+                                 +"]</p><p class=attrib>Source: Bureau of Meteorology</p>";
           default:
             console.log("Unknown data source");
             break;
