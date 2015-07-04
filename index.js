@@ -1,5 +1,22 @@
 
 
+
+
+var LatLong = function(la, lo) {
+  this.lat = la;
+  this.lon = lo;
+};
+
+var LocationData = function(t,d,la,lo) {
+  this.title = t,
+  this.details = d,
+  this.latlong = new LatLong(la, lo)
+};
+
+
+
+
+
 window.onload = function() {
   console.log("loading");
 
@@ -9,7 +26,7 @@ window.onload = function() {
     var request;
     request = new XMLHttpRequest();
 //    request.onload = parse;
-    request.open('GET', file, false);
+    request.open('GET', ""+file, false);
     request.send();
     //console.log("Got: "+file);
     switch(file) {
@@ -68,8 +85,8 @@ window.onload = function() {
     for(var line = 0; line < lines.length; line++) {
       var fields = lines[line].split(",");
       if(fields[3]) {
-        console.log("geo:"+fields[2].substr(2,fields[3].length));
-        console.log("geo:"+fields[3].substr(1,fields[3].length-3));
+//        console.log("geo:"+fields[2].substr(2,fields[3].length));
+//        console.log("geo:"+fields[3].substr(1,fields[3].length-3));
       }
     }
 //Description	Title	Co-ordinates
