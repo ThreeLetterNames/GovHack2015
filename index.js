@@ -68,12 +68,32 @@ window.onload = function() {
 
 
   function parse_photo_stories(data){
-    console.log("photo_stories: ..."+data.substr(10,50)+"..."); //50 chars
 //Title	URL	Date	Primary image	Primary image caption	Primary image rights information	Subjects	Station	State	Place	Keywords	Latitude	Longitude	MediaRSS URL
+    var lines = data.split("\n");
+    console.log("photo_stories: ..."+data.substr(10,50)+"... ("+lines.length+"lines)");
+    for(var line = 0; line < lines.length; line++) {
+      var fields = lines[line].split(",");
+      if(fields.length === 14) {
+        console.log("photo");
+        var t = fields[0];
+        var d = fields[4];
+        var la = fields[11];
+        var lo = fields[12];
+        allData[dataCount] = new LocationData(t,d,la,lo);
+        dataCount++;
+      }
+    }
   }
 
   function parse_heritage(data){
-    console.log("heritage: ..."+data.substr(10,50)+"...");
+    var lines = data.split("\n");
+    console.log("heritage: ..."+data.substr(10,50)+"... ("+lines.length+"lines)");
+    for(var line = 0; line < lines.length; line++) {
+      var fields = lines[line].split(",");
+      if(false) {
+      //comoplex address data.
+      }
+    }
 //MCCID_INT	Feature_name	Feature_long_description	Feature_short_description	Location_description	Suburb	Feature_type	Event_Activity	Date_from	Date_to	Purpose	Epoch	Language_group	Clan (people)	Nation (group common name)	Source	Source_type	URL	Source_person	Aboriginal_individual	Aboriginal_individual_Gender	Non_Aboriginal_indiv	Non_Aboriginal_indiv_Gender	Non_Aboriginal_organisation    Past and present 	Non_Aboriginal_role	Melway	Aboriginal_words	Aboriginal_words_meaning	European_site_names	Physical_evidence	Address
   }
 
@@ -88,9 +108,7 @@ window.onload = function() {
                      || fields[0].toLowerCase().contains("australian")
                      || fields[1].toLowerCase().contains("indigenous")
                      || fields[1].toLowerCase().contains("aboriginal")
-                     || fields[1].toLowerCase().contains("australian"))) { //str.includes(searchString[, position])
-//        console.log("geo:"+fields[2].substr(2,fields[3].length));
-//        console.log("geo:"+fields[3].substr(1,fields[3].length-3));
+                     || fields[1].toLowerCase().contains("australian"))) {
         var t = fields[1];
         var d = fields[0];
         var la = fields[2].substr(2,fields[3].length);
