@@ -2,20 +2,25 @@
 
 
 
-var LatLong = function(la, lo) {
+var LatLon = function(la, lo) {
   this.lat = la;
   this.lon = lo;
+  this.show = function() {
+    return "["+this.lat+","+this.lon+"]";
+  }
 };
 
 var LocationData = function(t,d,la,lo) {
   this.title = t,
   this.details = d,
-  this.latlong = new LatLong(la, lo)
+  this.latlon = new LatLon(la, lo)
 };
 
 
 
-
+var lonlat;
+var allData = new Array();
+var dataCount = 0;
 
 window.onload = function() {
   console.log("loading");
@@ -25,26 +30,20 @@ window.onload = function() {
   function load(file) {
     var request;
     request = new XMLHttpRequest();
-//    request.onload = parse;
     request.open('GET', ""+file, false);
     request.send();
-    //console.log("Got: "+file);
     switch(file) {
       case "dat/photo_stories.csv":
         parse_photo_stories(request.responseText);
-        //console.log("dat/photo_stories.csv:");
         break;
       case "dat/indigenous_heritage.csv":
         parse_heritage(request.responseText);
-        //console.log("dat/indigenous_heritage.csv:");
         break;
       case "dat/memorials_and_sculptures.csv":
         parse_sculptures(request.responseText);
-        //console.log("dat/memorials_and_sculptures.csv:");
         break;
       case "dat/indiginous_organizations.csv":
         parse_organizations(request.responseText);
-        //console.log("dat/indiginous_organizations.csv:");
         break;
       case "dat/atsic_regions.mid":
         //parse(request.responseText);
@@ -79,26 +78,36 @@ window.onload = function() {
   }
 
   function parse_sculptures(data){
-    console.log("sculptures: ..."+data.substr(10,50)+"...");
+  //Description	Title	Co-ordinates
     var lines = data.split("\n");
-    console.log("lines:"+lines.length);
+    console.log("sculptures: ..."+data.substr(10,50)+"... ("+lines.length+"lines)");
     for(var line = 0; line < lines.length; line++) {
       var fields = lines[line].split(",");
-      if(fields[3]) {
+      if(fields[3] && ( fields[0].toLowerCase().contains("indigenous")
+                     || fields[0].toLowerCase().contains("aboriginal")
+                     || fields[0].toLowerCase().contains("australian")
+                     || fields[1].toLowerCase().contains("indigenous")
+                     || fields[1].toLowerCase().contains("aboriginal")
+                     || fields[1].toLowerCase().contains("australian"))) { //str.includes(searchString[, position])
 //        console.log("geo:"+fields[2].substr(2,fields[3].length));
 //        console.log("geo:"+fields[3].substr(1,fields[3].length-3));
+        var t = fields[1];
+        var d = fields[0];
+        var la = fields[2].substr(2,fields[3].length);
+        var lo = fields[3].substr(1,fields[3].length-3);
+        allData[dataCount] = new LocationData(t,d,la,lo);
+        dataCount++;
       }
     }
-//Description	Title	Co-ordinates
   }
 
   function parse_organizations(data){
+//Organisation	Street	Suburb/Town	Postcode	Website
     console.log("organizations: ..."+data.substr(10,50)+"...");
   }
 
   function parse(data){
     console.log("DATA: ..."+data.substr(10,50)+"...");
-//Organisation	Street	Suburb/Town	Postcode	Website
   }
 
   load("dat/photo_stories.csv");
@@ -138,14 +147,13 @@ window.onload = function() {
 
   function geoCallback(position)
   {
-    var lonlat="["+position.coords.longitude+","+position.coords.latitude+"]";
-    console.log("GL: "+lonlat);
+    lonlat = "["+position.coords.longitude+","+position.coords.latitude+"]";
+    //console.log("GL: "+lonlat);
     geolocation = lonlat;
-    return lonlat;
+    return;
   }
 
-  lonlat = getLocation();
-//  console.log(lonlat); //not ready untill user interacts
+  getLocation();
 
 
   ////////////////////////////////////////////////////////////////////////
@@ -154,18 +162,49 @@ window.onload = function() {
   ////////////////////////////////////////////////////////////////////////
   // combine data into picture / text streams ////////////////////////////
 
-  ////////////////////////////////////////////////////////////////////////
-  // Block till everythings done... spinner? /////////////////////////////
+
+//get date and display weather info too:
+//http://www.bom.gov.au/iwk/climate_culture/Indig_seasons.shtml
+
 
   ////////////////////////////////////////////////////////////////////////
-  // Display list ////////////////////////////////////////////////////////
-  var output_div = document.getElementById("output");
-  console.log(output_div);
-  output_div.innerHTML += "<h4>Region:</h4>"
-  output_div.innerHTML += "<h5>Regional InformationStats</h5>"
-  output_div.innerHTML += "<h4>Places of Interest:</h4>"
-  output_div.innerHTML += "<h5> - location 1</h5>"
-  output_div.innerHTML += "<h5> - location 2</h5>"
+  // Block till everythings done... spinner? /////////////////////////////
+  //while (lonlat === undefined) {}
+//  while (lonlat === undefined)
+//    setTimeout(function () { alert('hello');  }, 3000 * 10);
+//  console.log("Crazy");
+
+  var old_count = 0;
+  var delay = function() {
+    if(lonlat === undefined || allData.length !== old_count) {//we want it to match
+        old_count = allData.length;
+        console.log("undef"); //not ready untill user interacts
+        setTimeout(delay, 250);//wait 50 millisecnds then recheck
+        return;
+    } else {
+      console.log("lonlat: "+lonlat); //not ready untill user interacts
+
+      ////////////////////////////////////////////////////////////////////
+      // Display list ////////////////////////////////////////////////////
+      var output_div = document.getElementById("output");
+      console.log(output_div);
+      output_div.innerHTML += "<h4>Region:</h4>";
+      output_div.innerHTML += "<h5>Regional InformationStats</h5>";
+      output_div.innerHTML += "<h4>Places of Interest:</h4>";
+      output_div.innerHTML += "<h5> - location 1</h5>";
+      output_div.innerHTML += "<h5> - location 2</h5>";
+      
+      for(var i = 0; i < allData.length; i++) {
+        output_div.innerHTML += "<h5>"+allData[i].title+"["+allData[i].latlon.show()+"]</h5>";
+      }
+      
+      
+      return;
+    }
+  }
+  delay();
+
+
   
 
 }//onload
