@@ -112,15 +112,18 @@ window.onload = function() {
     console.log("heritage: ..."+data.substr(10,50)+"... ("+lines.length+"lines)");
     for(var line = 0; line < lines.length; line++) {
       var fields = lines[line].split(",");
-      if(line !== 0 && fields[32] !== "" && fields[33] !== "") {
+      console.log("her fields: "+fields.length);
+      if(line !== 0 && fields.length > 5) {
         console.log("HER");
         var t = fields[1];
         var d = fields[2]+" ("+fields[5]+", "+fields[4]+": "+fields[6]+" - "+fields[7]+" - "+fields[17]+" - "+fields[18]+" - "+fields[19]+" - "+fields[26]+" - "+fields[27]+")" ;
-        var la = fields[31];
-        var lo = fields[32];
-        allData[dataCount] = new LocationData(t,d,la,lo,"HER");
-        allData[dataCount].links.push(fields[17]);
-        dataCount++;
+        var la = fields[fields.length-1];
+        var lo = fields[fields.length-2].substr(4,20);
+        if(la !== "" && lo !== "") {
+          allData[dataCount] = new LocationData(t,d,la,lo,"HER");
+          allData[dataCount].links.push(fields[17]);
+          dataCount++;
+        }
       }
     }
   }
@@ -251,24 +254,25 @@ window.onload = function() {
         switch(allData[i].src) {
           case "ABC":
             console.log("ABC");
-            image_div.innerHTML += "<div class=\"abc\"><h5>"+allData[i].title+" ## "
+            image_div.innerHTML += "<div class=\"abc\"><h5>"+allData[i].title+"</h5><p>"
                                  +allData[i].details+"["+allData[i].latlon.show()
-                                 +"]</h5><img src="+allData[i].img+"></img></div>";
+                                 +"]</p><img src="+allData[i].img
+                                 +"></img><p class=attrib>Source: ABC Online Photo Stories</p></div>";
             break;
           case "MAS":
             console.log("MAS");
-            output_div.innerHTML += "<div class=\"mas\"><h5>"+allData[i].title+"["
-                                 +allData[i].latlon.show()+"]</h5></div>";
+            output_div.innerHTML += "<div class=\"mas\"><h5>"+allData[i].title+"</h5><p>["
+                                 +allData[i].latlon.show()+"]</p><p class=attrib>Source: Melbourne Government Memorials</p></div>";
             break;
           case "ORG":
             console.log("ORG");
-            output_div.innerHTML += "<div class=\"org\"><h5>"+allData[i].title+"["
-                                 +allData[i].latlon.show()+"]</h5></div>";
+            output_div.innerHTML += "<div class=\"org\"><h5>"+allData[i].title+"</h5><p>["
+                                 +allData[i].latlon.show()+"]</p><p class=attrib>Source: Melbourne Government Organisations</p></div>";
             break;
           case "HER":
             console.log("HER-new");
-            output_div.innerHTML += "<div class=\"her\"><h5>"+allData[i].title+"["
-                                 +allData[i].latlon.show()+"]</h5></div>";
+            output_div.innerHTML += "<div class=\"her\"><h5>"+allData[i].title+"</h5><p>["
+                                 +allData[i].latlon.show()+"]</p><p class=attrib>Source: Indigenous Heritage Database</p></div>";
             break;
           default:
             console.log("Unknown data source");

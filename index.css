@@ -7,11 +7,10 @@ h1 {
   margin-bottom: 0.096em;*/
 }
 h5 {
-  color: hsl(359, 50%, 50%);
-  text-shadow: 3px 5px 3px hsl(320, 50%, 20%);
- /* font-size: 5.0em;
-  line-height: 1.2em;
-  margin-bottom: 0.096em;*/
+  color: hsl(359, 70%, 30%);
+  padding: 0.05px;
+  margin: 5px;
+  text-align: center
 }
 
 .abc {
@@ -20,20 +19,37 @@ h5 {
 }
 
 .mas {
-  background: hsl(29, 30%, 30%);
+  background: hsl(29, 30%, 60%);
   box-shadow: 4px 4px 5px hsl(0, 30%, 30%);
+  padding: 0.05px;
+  margin: 5px;
+  text-align: center
 }
 
 .org {
   background: hsl(129, 90%, 80%);
   box-shadow: 4px 4px 5px hsl(100, 20%, 80%);
+  padding: 0.05px;
+  margin: 5px;
+  text-align: center
 }
 
 .her {
-  background: hsl(29, 60%, 60%);
+  background: hsl(29, 60%, 70%);
   box-shadow: 4px 4px 5px hsl(0, 30%, 30%);
+  padding: 0.05px;
+  margin: 5px;
+  text-align: center
 }
 
+.attrib {
+  text-align: right
+}
+
+ /* font-size: 5.0em;
+  line-height: 1.2em;
+  margin-bottom: 0.096em;*/
+  
 /*
 
 
@@ -45,12 +61,12 @@ h5 {
   transition:  background 6s ease-in-out;
   
   
-  padding: 5px;
   
   
   border-top-left-radius: 25px;
   border-bottom-right-radius: 25px;
   
-  
+  // don't do it man!
+  text-shadow: 3px 5px 3px hsl(320, 50%, 20%);
 
 */
