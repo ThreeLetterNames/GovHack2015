@@ -46,6 +46,21 @@ var distance_calc = function(l1, l2) {
   }
 }
 
+//Month 	European
+//Seasons 	Miriwoong calendar 	Nyoongar calendar 	D'harawal calendar
+//DEC 	Summer 	Nyinggiyi-mageny (wet weather time) 	Birak, (dry and hot) 	Parra'dowee, (warm and wet)
+//JAN 	Burran, (hot and dry)
+//FEB 	Bunuru, (hottest)
+//MAR 	Autumn
+//APR 	Warnka-mageny (cold weather time) 	Bjeran, (cool begins) 	Marrai'gang, (wet becoming cooler)
+//MAY
+//JUN 	Winter 	Makuru, (coldest, wettest) 	Burrugin, (cold, short days)
+//JUL
+//AUG 	Djilba, (wet days and cool nights) 	Wiritjiribin, (cold and windy)
+//SEP 	Spring 	Barndenyirriny (hot weather time) 	Ngoonungi, (cool, getting warmer)
+//OCT 	Kambarang, (long dry periods)
+//NOV 	Parra'dowee, (warm and wet)
+
 
 var lonlat;
 var allData = new Array();

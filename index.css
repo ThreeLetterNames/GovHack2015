@@ -2,6 +2,11 @@
 
 
 h1 {
+  color: hsl(359, 70%, 30%);
+  background-color: hsl(359, 90%, 80%);
+  box-shadow: 4px 4px 5px 2px hsl(359, 90%, 60%);
+  font-size: 4.0em;
+  text-align: center;
  /* font-size: 5.0em;
   line-height: 1.2em;
   margin-bottom: 0.096em;*/
@@ -39,12 +44,60 @@ h5 {
   box-shadow: 4px 4px 5px hsl(0, 30%, 30%);
   padding: 0.05px;
   margin: 5px;
-  text-align: center
+  text-align: center;
 }
 
 .attrib {
-  text-align: right
+  text-align: right;
 }
+
+.main {
+  width: "80%";
+}
+
+.icon-td {
+  width: "30%";
+  align: center;
+}
+.icon-div {
+  width: "30%";
+  align: center;
+}
+.img-tag {
+  width: "100%";
+  align: middle;
+}
+.title-td {
+  width: "70%";
+  align: center;
+}
+.title-div {
+  text-align: right;
+  width: "70%";
+  align: center;
+  float: left;
+}
+.title-row {
+  text-align: right;
+  align: center;
+  horizontal-align: middle;
+}
+.content-row {
+  height: "100%";
+}
+.list-td {
+  width: "30%";
+  height: "100%";
+}
+.content-div {
+  height: "100%";
+}
+.content-td {
+  width: "100%";
+}
+
+
+
 
  /* font-size: 5.0em;
   line-height: 1.2em;
