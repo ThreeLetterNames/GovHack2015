@@ -25,10 +25,12 @@ window.onload = function() {
 //Description	Title	Co-ordinates
   load("dat/indiginous_organizations.csv");
 //Organisation	Street	Suburb/Town	Postcode	Website
-//  load("dat/");
-//
-//  load("dat/");
-//
+  load("dat/atsic_regions.mid");
+  load("dat/atsic_regions.mif");
+  load("dat/atsic_wards.mid");
+  load("dat/atsic_wards.mif");
+
+
 
   ////////////////////////////////////////////////////////////////////////
   // aquire geo location /////////////////////////////////////////////////
