@@ -81,8 +81,8 @@ window.onload = function() {
       if(line !== 0 && fields[11] !== "" && fields[12] !== "") { //&& fields.length === 14 && fields[11] !== ""
         var t = fields[0];
         var d = fields[4]+" ("+fields[9]+", "+fields[8]+": "+fields[10]+" - "+fields[6]+")" ;
-        var la = fields[11];
-        var lo = fields[12];
+        var la = fields[fields.length-2];
+        var lo = fields[fields.length-3];
         if(t.toLowerCase().contains("indigenous")
             || t.toLowerCase().contains("aboriginal")
             || t.toLowerCase().contains("australian")
@@ -142,8 +142,8 @@ window.onload = function() {
                      || fields[1].toLowerCase().contains("australian"))) {
         var t = fields[1];
         var d = fields[0];
-        var la = fields[2].substr(2,fields[3].length);
-        var lo = fields[3].substr(1,fields[3].length-3);
+        var la = fields[3].substr(1,fields[3].length-3);
+        var lo = fields[2].substr(2,fields[3].length);
         allData[dataCount] = new LocationData(t,d,la,lo,"MAS");
         dataCount++;
       }
