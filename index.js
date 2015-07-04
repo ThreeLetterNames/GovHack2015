@@ -1,6 +1,9 @@
 
 
-
+var LinkData = function(link, text) {
+  this.link = link;
+  this.text = text;
+}
 
 var LatLon = function(la, lo) {
   this.lat = la;
@@ -114,9 +117,10 @@ window.onload = function() {
             || d.toLowerCase().contains("australian")) { 
           allData[dataCount] = new LocationData(t,d,la,lo,"ABC");
           allData[dataCount].img = fields[3];
-          allData[dataCount].links.push(fields[1]);
-          allData[dataCount].links.push(fields[3]);
-          allData[dataCount].links.push(fields[13]);
+          allData[dataCount].links.push(new LinkData("https://www.google.com.au/maps/@"+la+","+lo+",17z","Geo"));
+          allData[dataCount].links.push(new LinkData(fields[1],"URL"));
+          allData[dataCount].links.push(new LinkData(fields[3],"IMG SRC"));
+          allData[dataCount].links.push(new LinkData(fields[13],"RSS URL"));
           dataCount++;
         }
       }
@@ -142,7 +146,8 @@ window.onload = function() {
         var lo = fields[fields.length-1];
         if(la !== "" && lo !== "") {
           allData[dataCount] = new LocationData(t,d,la,lo,"HER");
-          allData[dataCount].links.push(fields[17]);
+          allData[dataCount].links.push(new LinkData("https://www.google.com.au/maps/@"+la+","+lo+",17z","Geo"));
+//          allData[dataCount].links.push(fields[17]);
           dataCount++;
         }
       }
@@ -166,6 +171,7 @@ window.onload = function() {
         var la = fields[2].substr(2,fields[3].length);
         var lo = fields[3].substr(1,fields[3].length-3);
         allData[dataCount] = new LocationData(t,d,la,lo,"MAS");
+        allData[dataCount].links.push(new LinkData("https://www.google.com.au/maps/@"+la+","+lo+",17z","Geo"));
         dataCount++;
       }
     }
@@ -183,7 +189,8 @@ window.onload = function() {
         var la = fields[fields.length-2].substr(4,20);
         var lo = fields[fields.length-1];
         allData[dataCount] = new LocationData(t,d,la,lo,"ORG");
-        allData[dataCount].links.push(fields[fields.length-3]);
+        allData[dataCount].links.push(new LinkData("https://www.google.com.au/maps/@"+la+","+lo+",17z","Geo"));
+//        allData[dataCount].links.push(fields[fields.length-3]);
         dataCount++;
       }
     }
@@ -271,39 +278,44 @@ window.onload = function() {
       // Display list ////////////////////////////////////////////////////
       var output_div = document.getElementById("output");
       var image_div = document.getElementById("images");
+      var working_div;
       
       for(var i = 0; i < localData.length && i < 100; i++) {
 //        console.log("Dist:"+distance_calc(lonlat, localData[i].latlon));
         switch(localData[i].src) {
           case "ABC":
-            image_div.innerHTML += "<div class=\"abc\"><h5>"+localData[i].title+"</h5><p>"
-                                 +localData[i].details+"["+localData[i].latlon.show()
-                                 +" ==> "+localData[i].distance+"]</p><img src="+localData[i].img
-                                 +"></img><p class=attrib>Source: ABC Online Photo Stories</p></div>";
+            image_div.innerHTML += "<div class='abc'><h5>"+localData[i].title+"</h5><p>"
+                                 +localData[i].details+"</p><p>Distance:"+localData[i].distance
+                                 +"</p><img src='" + localData[i].img + "'></img>";
+//            for(var link_count = 0; link_count < localData[i].links.length; link_count++) {
+//              image_div.innerHTML += "<p><a href='"+localData[i].links[link_count].link+"'>"
+//                                    + localData[i].links[link_count].text + "<\\a></p>";
+//            }
+            image_div.innerHTML += "<p class='attrib'>Source: ABC Online Photo Stories</p></div>";
             break;
           case "MAS":
             output_div.innerHTML += "<div class=\"mas\"><h5>"+localData[i].title+"</h5><p>["
                                  +localData[i].latlon.show()
                                  +" ==> "+localData[i].distance
-                                 +"]</p><p class=attrib>Source: Melbourne Government Memorials</p></div>";
+                                 +"]</p><p class=attrib>Source: Melbourne Government Memorials</p>";
             break;
           case "ORG":
             output_div.innerHTML += "<div class=\"org\"><h5>"+localData[i].title+"</h5><p>["
                                  +localData[i].latlon.show()
                                  +" ==> "+localData[i].distance
-                                 +"]</p><p class=attrib>Source: Melbourne Government Organisations</p></div>";
+                                 +"]</p><p class=attrib>Source: Melbourne Government Organisations</p>";
             break;
           case "HER":
             output_div.innerHTML += "<div class=\"her\"><h5>"+localData[i].title+"</h5><p>["
                                  +localData[i].latlon.show()
                                  +" ==> "+localData[i].distance
-                                 +"]</p><p class=attrib>Source: Indigenous Heritage Database</p></div>";
+                                 +"]</p><p class=attrib>Source: Indigenous Heritage Database</p>";
             break;
           default:
             console.log("Unknown data source");
             break;
-         }
-      }
+         }//switch
+      }// 100 records
       return;
     }
   }
