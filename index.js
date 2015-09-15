@@ -2,7 +2,7 @@
     PI, atan2, contains, coords, cos, details, distance, geolocation,
     getCurrentPosition, getElementById, img, innerHTML, lat, latitude, latlon,
     length, link, links, log, lon, longitude, onload, open, push, responseText,
-    send, show, sin, sort, split, sqrt, src, substr, text, title, toLowerCase, geoCallback
+    send, show, sin, sort, split, sqrt, src, substr, text, title, toLowerCase, geoCallback, forEach, slice, delay
 */
 /*global console, window, XMLHttpRequest, navigator, alert, document, geoCallback, setTimeout, delay */
 "use strict";
@@ -93,6 +93,119 @@ var dataCount = 0;
 window.onload = function () {
     console.log("loading");
 
+    function parse_photo_stories(data) {
+//Title     URL     Date     Primary image     Primary image caption
+//Primary image rights information     Subjects     Station     State     Place
+//Keywords     Latitude     Longitude     MediaRSS URL     -14 fields
+        var lines = data.split("\n");
+        var fields, t, d, la, lo;
+//        console.log("photo_stories: ..."+data.substr(10,50)+"... ("+lines.length+" lines)");
+//        for(var line = 0; line < lines.length; line++) {
+
+//        for (line = 0; line < lines.length; line += 1) {
+        lines.forEach(function (line, index) {
+            fields = line.split(",");
+            if (index !== 0 && fields[11] !== "" && fields[12] !== "") { //&& fields.length === 14 && fields[11] !== ""
+                t = fields[0];
+                d = fields[4] + " (" + fields[9] + ", " + fields[8] + ": " + fields[10] + " - " + fields[6] + ")";
+                la = fields[fields.length - 3];
+                lo = fields[fields.length - 2];
+                if (t.toLowerCase().contains("indigenous")
+                        || t.toLowerCase().contains("aboriginal")
+                        || t.toLowerCase().contains("australian")
+                        || d.toLowerCase().contains("indigenous")
+                        || d.toLowerCase().contains("aboriginal")
+                        || d.toLowerCase().contains("australian")) {
+                    allData[dataCount] = new LocationData(t, d, la, lo, "ABC");
+                    allData[dataCount].img = fields[3];
+                    allData[dataCount].links.push(new LinkData("https://www.google.com.au/maps/@" + la + "," + lo + ",17z", "Geo"));
+                    allData[dataCount].links.push(new LinkData(fields[1], "URL"));
+                    allData[dataCount].links.push(new LinkData(fields[3], "IMG SRC"));
+                    allData[dataCount].links.push(new LinkData(fields[13], "RSS URL"));
+                    dataCount += 1;
+                }
+            }
+        });
+
+//        }//for
+    }
+
+    function parse_heritage(data) {
+//MCCID_INT     Feature_name     Feature_long_description     Feature_short_description     Location_description     4
+//Suburb     Feature_type     Event_Activity     Date_from     Date_to     9
+//Purpose     Epoch     Language_group     Clan (people)     Nation (group common name)     14
+//Source     Source_type     URL     Source_person     Aboriginal_individual     19
+//Aboriginal_individual_Gender     Non_Aboriginal_indiv     Non_Aboriginal_indiv_Gender     Non_Aboriginal_organisation        Past and present        Non_Aboriginal_role 24
+//     Melway     Aboriginal_words     Aboriginal_words_meaning     European_site_names     Physical_evidence     29
+//Address     -> lat    -> long - (33 fields)
+        var lines = data.split("\n");
+        var fields, t, d, la, lo;
+//        console.log("heritage: ..."+data.substr(10,50)+"... ("+lines.length+"lines)");
+//        for (line = 0; line < lines.length; line += 1) {
+        lines.forEach(function (line, index) {
+            fields = line.split(",");
+            if (index !== 0 && fields.length > 5) {
+                t = fields[1];
+                d = fields[2] + " (" + fields[5] + ", " + fields[4] + ": " + fields[6] + " - "
+                        + fields[7] + " - " + fields[17] + " - " + fields[18] + " - " + fields[19]
+                        + " - " + fields[26] + " - " + fields[27] + ")";
+                la = fields[fields.length - 2].substr(4, 20);
+                lo = fields[fields.length - 1];
+                if (la !== "" && lo !== "") {
+                    allData[dataCount] = new LocationData(t, d, la, lo, "HER");
+                    allData[dataCount].links.push(new LinkData("https://www.google.com.au/maps/@" + la + "," + lo + ",17z", "Geo"));
+//                    allData[dataCount].links.push(fields[17]);
+                    dataCount += 1;
+                }
+            }
+        });
+    }
+
+    function parse_sculptures(data) {
+    //Description     Title     Co-ordinates
+        var lines = data.split("\n");
+        var fields, t, d, la, lo;
+//        console.log("sculptures: ..."+data.substr(10,50)+"... ("+lines.length+"lines)");
+//        for (line = 0; line < lines.length; line += 1) {
+        lines.forEach(function (line) {
+            fields = line.split(",");
+            if (fields[3] && (fields[0].toLowerCase().contains("indigenous")
+                    || fields[0].toLowerCase().contains("aboriginal")
+                    || fields[0].toLowerCase().contains("australian")
+                    || fields[1].toLowerCase().contains("indigenous")
+                    || fields[1].toLowerCase().contains("aboriginal")
+                    || fields[1].toLowerCase().contains("australian"))) {
+                t = fields[1];
+                d = fields[0];
+                la = fields[2].substr(2, fields[3].length);
+                lo = fields[3].substr(1, fields[3].length - 3);
+                allData[dataCount] = new LocationData(t, d, la, lo, "MAS");
+                allData[dataCount].links.push(new LinkData("https://www.google.com.au/maps/@" + la + "," + lo + ",17z", "Geo"));
+                dataCount += 1;
+            }
+        });
+    }
+
+    function parse_organizations(data) {
+//Organisation     Street     Suburb/Town     Postcode     Website        -> lat -> lon
+        var lines = data.split("\n");
+        var fields, t, d, la, lo;
+//        console.log("organizations: ..."+data.substr(10,50)+"... ("+lines.length+"lines)");
+//        for (line = 0; line < lines.length; line += 1) {
+        lines.forEach(function (line, index) {
+            fields = line.split(",");
+            if (index > 0 && fields[4]) {
+                t = fields[0];
+                d = fields[4] + " - " + fields[1] + ", " + fields[2];
+                la = fields[fields.length - 2].substr(4, 20);
+                lo = fields[fields.length - 1];
+                allData[dataCount] = new LocationData(t, d, la, lo, "ORG");
+                allData[dataCount].links.push(new LinkData("https://www.google.com.au/maps/@" + la + "," + lo + ",17z", "Geo"));
+//                allData[dataCount].links.push(fields[fields.length-3]);
+                dataCount += 1;
+            }
+        });
+    }
     ////////////////////////////////////////////////////////////////////////
     // read in data files //////////////////////////////////////////////////
     function load(file) {
@@ -135,112 +248,7 @@ window.onload = function () {
     }
 
 
-    function parse_photo_stories(data) {
-//Title     URL     Date     Primary image     Primary image caption
-//Primary image rights information     Subjects     Station     State     Place
-//Keywords     Latitude     Longitude     MediaRSS URL     -14 fields
-        var lines = data.split("\n");
-        var line, fields, t, d, la, lo;
-//        console.log("photo_stories: ..."+data.substr(10,50)+"... ("+lines.length+" lines)");
-//        for(var line = 0; line < lines.length; line++) {
-        for (line = 0; line < lines.length; line += 1) {
-            fields = lines[line].split(",");
-            if (line !== 0 && fields[11] !== "" && fields[12] !== "") { //&& fields.length === 14 && fields[11] !== ""
-                t = fields[0];
-                d = fields[4] + " (" + fields[9] + ", " + fields[8] + ": " + fields[10] + " - " + fields[6] + ")";
-                la = fields[fields.length - 3];
-                lo = fields[fields.length - 2];
-                if (t.toLowerCase().contains("indigenous")
-                        || t.toLowerCase().contains("aboriginal")
-                        || t.toLowerCase().contains("australian")
-                        || d.toLowerCase().contains("indigenous")
-                        || d.toLowerCase().contains("aboriginal")
-                        || d.toLowerCase().contains("australian")) {
-                    allData[dataCount] = new LocationData(t, d, la, lo, "ABC");
-                    allData[dataCount].img = fields[3];
-                    allData[dataCount].links.push(new LinkData("https://www.google.com.au/maps/@" + la + "," + lo + ",17z", "Geo"));
-                    allData[dataCount].links.push(new LinkData(fields[1], "URL"));
-                    allData[dataCount].links.push(new LinkData(fields[3], "IMG SRC"));
-                    allData[dataCount].links.push(new LinkData(fields[13], "RSS URL"));
-                    dataCount += 1;
-                }
-            }
-        }
-    }
 
-    function parse_heritage(data) {
-//MCCID_INT     Feature_name     Feature_long_description     Feature_short_description     Location_description     4
-//Suburb     Feature_type     Event_Activity     Date_from     Date_to     9
-//Purpose     Epoch     Language_group     Clan (people)     Nation (group common name)     14
-//Source     Source_type     URL     Source_person     Aboriginal_individual     19
-//Aboriginal_individual_Gender     Non_Aboriginal_indiv     Non_Aboriginal_indiv_Gender     Non_Aboriginal_organisation        Past and present        Non_Aboriginal_role 24
-//     Melway     Aboriginal_words     Aboriginal_words_meaning     European_site_names     Physical_evidence     29
-//Address     -> lat    -> long - (33 fields)
-        var lines = data.split("\n");
-        var line, fields, t, d, la, lo;
-//        console.log("heritage: ..."+data.substr(10,50)+"... ("+lines.length+"lines)");
-        for (line = 0; line < lines.length; line += 1) {
-            fields = lines[line].split(",");
-            if (line !== 0 && fields.length > 5) {
-                t = fields[1];
-                d = fields[2] + " (" + fields[5] + ", " + fields[4] + ": " + fields[6] + " - "
-                        + fields[7] + " - " + fields[17] + " - " + fields[18] + " - " + fields[19]
-                        + " - " + fields[26] + " - " + fields[27] + ")";
-                la = fields[fields.length - 2].substr(4, 20);
-                lo = fields[fields.length - 1];
-                if (la !== "" && lo !== "") {
-                    allData[dataCount] = new LocationData(t, d, la, lo, "HER");
-                    allData[dataCount].links.push(new LinkData("https://www.google.com.au/maps/@" + la + "," + lo + ",17z", "Geo"));
-//                    allData[dataCount].links.push(fields[17]);
-                    dataCount += 1;
-                }
-            }
-        }
-    }
-
-    function parse_sculptures(data) {
-    //Description     Title     Co-ordinates
-        var lines = data.split("\n");
-        var line, fields, t, d, la, lo;
-//        console.log("sculptures: ..."+data.substr(10,50)+"... ("+lines.length+"lines)");
-        for (line = 0; line < lines.length; line += 1) {
-            fields = lines[line].split(",");
-            if (fields[3] && (fields[0].toLowerCase().contains("indigenous")
-                    || fields[0].toLowerCase().contains("aboriginal")
-                    || fields[0].toLowerCase().contains("australian")
-                    || fields[1].toLowerCase().contains("indigenous")
-                    || fields[1].toLowerCase().contains("aboriginal")
-                    || fields[1].toLowerCase().contains("australian"))) {
-                t = fields[1];
-                d = fields[0];
-                la = fields[2].substr(2, fields[3].length);
-                lo = fields[3].substr(1, fields[3].length - 3);
-                allData[dataCount] = new LocationData(t, d, la, lo, "MAS");
-                allData[dataCount].links.push(new LinkData("https://www.google.com.au/maps/@" + la + "," + lo + ",17z", "Geo"));
-                dataCount += 1;
-            }
-        }
-    }
-
-    function parse_organizations(data) {
-//Organisation     Street     Suburb/Town     Postcode     Website        -> lat -> lon
-        var lines = data.split("\n");
-        var line, fields, t, d, la, lo;
-//        console.log("organizations: ..."+data.substr(10,50)+"... ("+lines.length+"lines)");
-        for (line = 0; line < lines.length; line += 1) {
-            fields = lines[line].split(",");
-            if (line > 0 && fields[4]) {
-                t = fields[0];
-                d = fields[4] + " - " + fields[1] + ", " + fields[2];
-                la = fields[fields.length - 2].substr(4, 20);
-                lo = fields[fields.length - 1];
-                allData[dataCount] = new LocationData(t, d, la, lo, "ORG");
-                allData[dataCount].links.push(new LinkData("https://www.google.com.au/maps/@" + la + "," + lo + ",17z", "Geo"));
-//                allData[dataCount].links.push(fields[fields.length-3]);
-                dataCount += 1;
-            }
-        }
-    }
 
 //    function parse(data){
 //        console.log("DATA: ..." + data.substr(10, 50) + "...");
@@ -278,15 +286,14 @@ window.onload = function () {
         console.log("GL: " + lonlat);
         //geolocation = lonlat;
         return;
-    }
-    
-    function getLocation() {
+    };
+
+    var getLocation = function () {
         if (navigator.geolocation) {
             return navigator.geolocation.getCurrentPosition(geoCallback);
-        } else {
-            alert("Geolocation is not supported by this browser.");
         }
-    }
+        alert("Geolocation is not supported by this browser.");
+    };
 
     getLocation();
 
@@ -313,10 +320,10 @@ window.onload = function () {
     // combine data into picture / text streams ////////////////////////////
     ////////////////////////////////////////////////////////////////////////
     // search data an sort by distance (with areas priooritized first) /////
-            var x;
-            for (x = 0; x < allData.length; x += 1) {
-                allData[x].distance = distance_calc(lonlat, allData[x].latlon);
-            }
+//            for (x = 0; x < allData.length; x += 1) {
+            allData.forEach(function (dat) {
+                dat.distance = distance_calc(lonlat, dat.latlon);
+            });
             var localData = allData.sort(function (x, y) {
                 return x.distance - y.distance;
             });
@@ -326,54 +333,59 @@ window.onload = function () {
             // Display list ////////////////////////////////////////////////////
             var output_div = document.getElementById("output");
             var image_div = document.getElementById("images");
-            var i, link_text, link_count;
+            var link_text;
 
-            for (i = 0; i < localData.length && i < 100; i += 1) {
+//            for (i = 0; i < localData.length && i < 100; i += 1) {
+            localData = localData.slice(0, 50);
+            localData.forEach(function (dat) {
 //                console.log("Dist:"+distance_calc(lonlat, localData[i].latlon));
 
                 link_text = "";
-                for (link_count = 0; link_count < localData[i].links.length; link_count += 1) {
-                    link_text += "<p><a class='link' href='" + localData[i].links[link_count].link + "'>"
-                            + localData[i].links[link_count].text + "</a></p>";
-                }
+//                for (link_count = 0; link_count < dat.links.length; link_count += 1) {
+                dat.links.forEach(function (link_dat) {
+                    link_text += "<p><a class='link' href='" + link_dat.link + "'>"
+                            + link_dat.text + "</a></p>";
+                });
 
-                switch (localData[i].src) {
+                switch (dat.src) {
                 case "ABC":
-                    image_div.innerHTML += "<div class='abc'><p>" + localData[i].title + "</p><p>"
-                            + localData[i].details + "</p><img src='" + localData[i].img + "' width='30%'></img>"
+                    image_div.innerHTML += "<div class='abc'><p>" + dat.title + "</p><p>"
+                            + dat.details + "</p><img src='" + dat.img + "' width='30%'></img>"
                             + link_text + "<p class='attrib'>Source: ABC Online Photo Stories</p></div>";
                     break;
 
                 case "MAS":
-                    output_div.innerHTML += "<div class=\"mas\"><h5>" + localData[i].title + "</h5><p>["
-                            + localData[i].details + "</p>"
+                    output_div.innerHTML += "<div class=\"mas\"><h5>" + dat.title + "</h5><p>["
+                            + dat.details + "</p>"
                             + link_text + "<p class=attrib>Source: Melbourne Government Memorials</p></div>";
                     break;
 
                 case "ORG":
-                    output_div.innerHTML += "<div class=\"org\"><h5>" + localData[i].title + "</h5><p>"
-                            + localData[i].title + "</p><p>" + localData[i].details
+                    output_div.innerHTML += "<div class=\"org\"><h5>" + dat.title + "</h5><p>"
+                            + dat.title + "</p><p>" + dat.details
                             + "</p>" + link_text + "<p class=attrib>Source: Melbourne Government Organisations</p></div>";
                     break;
 
                 case "HER":
-                    output_div.innerHTML += "<div class=\"her\"><h5>" + localData[i].title + "</h5><p>"
-                            + localData[i].title + "</p><p>" + localData[i].details
+                    output_div.innerHTML += "<div class=\"her\"><h5>" + dat.title + "</h5><p>"
+                            + dat.title + "</p><p>" + dat.details
                             + "</p>" + link_text + "<p class=attrib>Source: Indigenous Heritage Database</p></div>";
                     break;
 
                 case "BOM":
-                    output_div.innerHTML += "<div class=\"bom\"><h5>" + localData[i].title + "</h5><p>["
+                    output_div.innerHTML += "<div class=\"bom\"><h5>" + dat.title + "</h5><p>["
                             + "]</p><p class=attrib>Source: Bureau of Meteorology</p>";
                     break;
                 default:
                     console.log("Unknown data source");
                     break;
                 }//switch
-            }// 100 records
+            });// 100 records
             return;
         }
     };
     delay();
 
 };//onload
+
+
